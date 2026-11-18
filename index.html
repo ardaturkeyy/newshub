@@ -144,7 +144,7 @@ const APPS=[
 const SRC={rss:{n:"News",c:"#e8590c"},reddit:{n:"Reddit",c:"#FF4500"},bsky:{n:"Bluesky",c:"#1185FE"},masto:{n:"Mastodon",c:"#6364FF"}};
 
 let cfg=LS.get("nh.cfg",null);
-if(!cfg){cfg={rss:PRESET_RSS.map(x=>({...x})),reddit:["switzerland"],bsky:null,masto:null,
+if(!cfg){cfg={rss:PRESET_RSS.map(x=>({...x})),reddit:[],bsky:null,masto:null,
   apps:Object.fromEntries(APPS.map(a=>[a.k,["whatsapp","instagram","messages","gmail","youtube","x","telegram","linkedin"].includes(a.k)])),
   proxy:"rss2json",proxyUrl:"",rssKey:"",onboarded:false};}
 const save=()=>LS.set("nh.cfg",cfg);
@@ -328,7 +328,7 @@ function renderSetup(){
    <h3>Eigenen Feed hinzufügen (RSS/Atom, auch YouTube-Kanäle)</h3>
    <input type="text" id="rName" placeholder="Name, z. B. Watson"><input type="url" id="rUrl" placeholder="https://…/rss">
    <button class="btn sec2" id="rAdd">+ Feed hinzufügen</button>
-   <h3>Reddit-Communities</h3>
+   <h3>Reddit-Communities</h3><p class="note">Hinweis: Reddit blockiert Abrufe durch fremde Apps oft. Erscheint ein Fehler, entferne die Community wieder.</p>
    ${cfg.reddit.map((s,i)=>`<div class="row"><div class="l">r/${esc(s)}</div><button class="btn del" data-sdel="${i}">✕</button></div>`).join("")}
    <input type="text" id="sub" placeholder="z. B. switzerland, zurich, apple"><button class="btn sec2" id="sAdd">+ Community hinzufügen</button>
   </div>
