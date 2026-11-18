@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="News Hub">
+<meta name="theme-color" content="#0e1116">
+<link rel="apple-touch-icon" id="ati" href="">
+<link rel="icon" id="fav" href="">
+<title>News Hub</title>
+<style>
+:root{--bg:#0e1116;--card:#171b22;--card2:#1f242d;--line:#2a303b;--fg:#e8eaed;--mut:#9aa3af;--acc:#4f7cff;--red:#ff5a6e;--ok:#3ecf8e;
+--sat:env(safe-area-inset-top);--sab:env(safe-area-inset-bottom)}
+@media (prefers-color-scheme:light){:root{--bg:#f3f4f7;--card:#fff;--card2:#eef0f4;--line:#dfe2e8;--fg:#14171c;--mut:#626b78}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);padding:calc(var(--sat) + 10px) 14px 8px;border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:8px}
+h1{font-size:24px;margin:0;flex:1;letter-spacing:-.3px}
+.ib{border:0;background:var(--card2);color:var(--fg);width:38px;height:38px;border-radius:19px;font-size:18px;cursor:pointer}
+.ib.spin{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);color:var(--fg);padding:5px 12px;border-radius:16px;font-size:14px;cursor:pointer}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+main{padding:10px 10px calc(var(--sab) + 84px);max-width:680px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.card.read{opacity:.62}
+.top{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut)}
+.av{width:34px;height:34px;border-radius:17px;object-fit:cover;background:var(--card2);flex:none}
+.badge{font-size:11px;font-weight:700;color:#fff;padding:2px 7px;border-radius:8px;flex:none}
+.who{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.who b{color:var(--fg)}
+.ttl{font-weight:650;font-size:17px;margin:8px 0 4px;line-height:1.3}
+.txt{white-space:pre-wrap;word-wrap:break-word;margin-top:6px;display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
+.txt.full{display:block}
+.rp{font-size:13px;color:var(--mut);margin-top:6px}
+.pic{width:100%;max-height:340px;object-fit:cover;border-radius:12px;margin-top:8px;background:var(--card2)}
+.acts{display:flex;gap:4px;margin-top:8px;margin-left:-8px}
+.act{border:0;background:none;color:var(--mut);font-size:14px;padding:6px 8px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.act.on{color:var(--red)}.act.bo{color:var(--ok)}.act:active{background:var(--card2)}
+.sp{flex:1}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:6;display:flex;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding-bottom:var(--sab)}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:8px 0 6px;font-size:11px;cursor:pointer;position:relative}
+nav button span{display:block;font-size:21px;line-height:1.2}
+nav button.on{color:var(--acc)}
+.dot{position:absolute;top:4px;left:55%;background:var(--red);color:#fff;font-size:10px;border-radius:8px;padding:0 5px;min-width:16px}
+.fab{position:fixed;right:16px;bottom:calc(var(--sab) + 74px);width:54px;height:54px;border-radius:27px;border:0;background:var(--acc);color:#fff;font-size:26px;box-shadow:0 6px 18px rgba(0,0,0,.35);z-index:6;cursor:pointer}
+.empty{text-align:center;color:var(--mut);padding:40px 20px}
+.err{background:color-mix(in srgb,var(--red) 14%,var(--card));border:1px solid color-mix(in srgb,var(--red) 40%,var(--line));border-radius:12px;padding:8px 12px;font-size:13px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 8px;padding:6px 2px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:5px;text-decoration:none;color:var(--fg);font-size:12px}
+.tile i{width:60px;height:60px;border-radius:15px;display:flex;align-items:center;justify-content:center;color:#fff;font:700 20px/1 -apple-system,sans-serif;font-style:normal}
+.tile small{color:var(--mut);font-size:11px}
+h2{font-size:18px;margin:18px 4px 8px}
+h3{font-size:15px;margin:14px 0 6px}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px 14px 12px;margin-bottom:12px}
+.row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+.row .l{flex:1;min-width:0}.row small{display:block;color:var(--mut);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+input[type=text],input[type=password],input[type=url],textarea,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--fg);font:inherit;margin:4px 0}
+textarea{min-height:120px;resize:vertical}
+.btn{border:0;background:var(--acc);color:#fff;padding:10px 16px;border-radius:12px;font:600 15px/1 inherit;cursor:pointer;margin:6px 6px 0 0}
+.btn.sec2{background:var(--card2);color:var(--fg)}.btn.del{background:none;color:var(--red);padding:6px}
+.sw{position:relative;width:46px;height:28px;flex:none}.sw input{opacity:0;width:0;height:0}
+.sw b{position:absolute;inset:0;background:var(--line);border-radius:14px;transition:.2s}.sw b:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:11px;transition:.2s}
+.sw input:checked+b{background:var(--ok)}.sw input:checked+b:before{transform:translateX(18px)}
+.note{font-size:13px;color:var(--mut);margin:6px 0}
+.ok{color:var(--ok)}
+.hero{background:linear-gradient(135deg,#3b5bdb,#7048e8);color:#fff;border-radius:18px;padding:18px;margin:6px 0 12px}
+.hero h2{margin:0 0 6px;color:#fff}.hero p{margin:0;opacity:.92;font-size:14px}
+.step{display:inline-flex;width:22px;height:22px;border-radius:11px;background:var(--acc);color:#fff;font-size:13px;align-items:center;justify-content:center;margin-right:6px}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:none;align-items:flex-end;justify-content:center}
+.sheet.show{display:flex}
+.sheet>div{background:var(--card);width:100%;max-width:680px;border-radius:20px 20px 0 0;padding:16px 16px calc(var(--sab) + 16px)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--sab) + 140px);background:#222;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;z-index:30;opacity:0;transition:.25s;pointer-events:none}
+.toast.show{opacity:1}
+.ntf{display:flex;gap:10px;align-items:flex-start}
+.ntf .ic{font-size:18px;width:26px;text-align:center}
+.cnt{font-size:12px;color:var(--mut);text-align:right}
+</style>
+</head>
+<body>
+<header>
+  <div class="hrow"><h1 id="title">Feed</h1><button class="ib" id="refresh" title="Aktualisieren">⟳</button></div>
+  <div class="chips" id="chips"></div>
+</header>
+<main id="main"></main>
+<button class="fab" id="fab" title="Beitrag verfassen">✎</button>
+<nav id="nav">
+  <button data-v="feed" class="on"><span>📰</span>Feed</button>
+  <button data-v="notif"><span>🔔</span>Mitteilungen<em class="dot" id="ndot" hidden></em></button>
+  <button data-v="apps"><span>▦</span>Apps</button>
+  <button data-v="saved"><span>🔖</span>Gemerkt</button>
+  <button data-v="setup"><span>⚙︎</span>Einrichten</button>
+</nav>
+<div class="sheet" id="sheet"><div id="sheetBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+function makeIcon(s){
+  const c=document.createElement("canvas");c.width=c.height=s;const x=c.getContext("2d"),u=s/180;
+  const g=x.createLinearGradient(0,0,0,s);g.addColorStop(0,"#1e50dc");g.addColorStop(1,"#5a28a0");x.fillStyle=g;x.fillRect(0,0,s,s);
+  const rr=(a,b,w,h,r,f)=>{x.fillStyle=f;x.beginPath();x.roundRect(a*u,b*u,w*u,h*u,r*u);x.fill()};
+  rr(40,45,90,70,12,"#c8d7ff");rr(50,67,90,70,12,"#dce6ff");rr(60,89,90,70,12,"#fff");
+  rr(70,103,60,8,4,"#3c50c8");rr(70,119,45,6,3,"#aab4dc");rr(70,131,52,6,3,"#aab4dc");
+  x.fillStyle="#ff465a";x.beginPath();x.arc(137.5*u,42.5*u,12.5*u,0,7);x.fill();
+  return c.toDataURL("image/png");
+}
+let ICON_B64="";
+try{const d=makeIcon(180);ICON_B64=d.split(",")[1];document.getElementById("ati").href=d;document.getElementById("fav").href=d;}catch(e){}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- Voreinstellungen ---------- */
+const PRESET_RSS=[
+ {name:"SRF News",url:"https://www.srf.ch/news/bnf/rss/1646",on:true},
+ {name:"20 Minuten",url:"https://partner-feeds.20min.ch/rss/20minuten",on:true},
+ {name:"NZZ",url:"https://www.nzz.ch/recent.rss",on:false},
+ {name:"Google News CH",url:"https://news.google.com/rss?hl=de&gl=CH&ceid=CH:de",on:false},
+ {name:"Tagesschau",url:"https://www.tagesschau.de/index~rss2.xml",on:false},
+ {name:"heise online",url:"https://www.heise.de/rss/heise-atom.xml",on:false}
+];
+const APPS=[
+ {k:"whatsapp",n:"WhatsApp",s:"whatsapp://",w:"https://www.whatsapp.com/",c:"#25D366",t:"Wa"},
+ {k:"instagram",n:"Instagram",s:"instagram://app",w:"https://www.instagram.com/",c:"#C13584",t:"Ig"},
+ {k:"messages",n:"Nachrichten",s:"sms:",w:"",c:"#34C759",t:"✉"},
+ {k:"gmail",n:"Gmail",s:"googlegmail://",w:"https://mail.google.com/mail/mu/",c:"#D93025",t:"Gm"},
+ {k:"outlook",n:"Outlook",s:"ms-outlook://",w:"https://outlook.live.com/mail/",c:"#0F6CBD",t:"Ol"},
+ {k:"facebook",n:"Facebook",s:"fb://",w:"https://m.facebook.com/",c:"#1877F2",t:"Fb"},
+ {k:"x",n:"X",s:"twitter://",w:"https://x.com/home",c:"#111",t:"X"},
+ {k:"telegram",n:"Telegram",s:"tg://",w:"https://web.telegram.org/k/",c:"#229ED9",t:"Tg"},
+ {k:"youtube",n:"YouTube",s:"youtube://",w:"https://m.youtube.com/feed/subscriptions",c:"#E62117",t:"Yt"},
+ {k:"linkedin",n:"LinkedIn",s:"linkedin://",w:"https://www.linkedin.com/feed/",c:"#0A66C2",t:"in"},
+ {k:"reddit",n:"Reddit",s:"reddit://",w:"https://www.reddit.com/",c:"#FF4500",t:"Rd"},
+ {k:"snapchat",n:"Snapchat",s:"snapchat://",w:"https://www.snapchat.com/",c:"#E6D300",t:"Sc"},
+ {k:"threads",n:"Threads",s:"",w:"https://www.threads.net/",c:"#333",t:"Th"},
+ {k:"bluesky",n:"Bluesky",s:"bluesky://",w:"https://bsky.app/",c:"#1185FE",t:"Bs"},
+ {k:"tiktok",n:"TikTok",s:"",w:"https://www.tiktok.com/",c:"#010101",t:"Tt"},
+ {k:"discord",n:"Discord",s:"discord://",w:"https://discord.com/app",c:"#5865F2",t:"Dc"}
+];
+const SRC={rss:{n:"News",c:"#e8590c"},reddit:{n:"Reddit",c:"#FF4500"},bsky:{n:"Bluesky",c:"#1185FE"},masto:{n:"Mastodon",c:"#6364FF"}};
+
+let cfg=LS.get("nh.cfg",null);
+if(!cfg){cfg={rss:PRESET_RSS.map(x=>({...x})),reddit:["switzerland"],bsky:null,masto:null,
+  apps:Object.fromEntries(APPS.map(a=>[a.k,["whatsapp","instagram","messages","gmail","youtube","x","telegram","linkedin"].includes(a.k)])),
+  proxy:"rss2json",proxyUrl:"",rssKey:"",onboarded:false};}
+const save=()=>LS.set("nh.cfg",cfg);
+let saved=LS.get("nh.saved",[]);
+let readSet=new Set(LS.get("nh.read",[]));
+const markRead=id=>{if(readSet.has(id))return;readSet.add(id);LS.set("nh.read",[...readSet].slice(-3000))};
+
+let items=[],notifs=[],errors=[],filter="all",view="feed",lastLoad=0,loading=false;
+
+/* ---------- Helfer ---------- */
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
+function ago(ms){const s=(Date.now()-ms)/1000;if(!isFinite(s))return"";if(s<60)return"jetzt";if(s<3600)return"vor "+Math.floor(s/60)+" Min.";if(s<86400)return"vor "+Math.floor(s/3600)+" Std.";
+  if(s<604800)return"vor "+Math.floor(s/86400)+" T.";return new Date(ms).toLocaleDateString("de-CH")}
+function strip(html){if(!html)return"";const d=new DOMParser().parseFromString(String(html).replace(/<br\s*\/?>/gi,"\n").replace(/<\/p>\s*<p>/gi,"\n\n"),"text/html");return(d.body.textContent||"").trim()}
+async function jfetch(url,opt={}){const r=await fetch(url,opt);const t=await r.text();let j=null;try{j=t?JSON.parse(t):null}catch(e){}
+  if(!r.ok){const e=new Error((j&&(j.message||j.error))||("HTTP "+r.status));e.status=r.status;e.body=j;throw e}return j}
+
+/* ---------- RSS ---------- */
+async function loadRSS(f){
+  let list=[];
+  if(cfg.proxy==="rss2json"){
+    const j=await jfetch("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(f.url)+(cfg.rssKey?"&api_key="+encodeURIComponent(cfg.rssKey)+"&count=25":""));
+    if(j.status!=="ok")throw new Error(j.message||"Feed nicht lesbar");
+    list=j.items.map(i=>({title:i.title,link:i.link,time:Date.parse((i.pubDate||"").replace(" ","T")+"Z"),text:strip(i.description||i.content).slice(0,400),
+      img:i.thumbnail||(i.enclosure&&i.enclosure.link&&/image/.test(i.enclosure.type||"image")?i.enclosure.link:"")}));
+  }else{
+    const url=cfg.proxy==="custom"?cfg.proxyUrl+encodeURIComponent(f.url):f.url;
+    const r=await fetch(url);if(!r.ok)throw new Error("HTTP "+r.status);
+    const x=new DOMParser().parseFromString(await r.text(),"text/xml");
+    const nodes=[...x.querySelectorAll("item,entry")];
+    const g=(n,s)=>{const e=n.getElementsByTagName(s)[0];return e?e.textContent:""};
+    list=nodes.slice(0,25).map(n=>{const le=n.querySelector("link");const link=le?(le.getAttribute("href")||le.textContent):"";
+      const m=n.getElementsByTagName("media:content")[0]||n.getElementsByTagName("media:thumbnail")[0]||n.querySelector("enclosure");
+      return{title:g(n,"title"),link,time:Date.parse(g(n,"pubDate")||g(n,"updated")||g(n,"published")||g(n,"dc:date")),
+        text:strip(g(n,"description")||g(n,"summary")||g(n,"content")).slice(0,400),img:m?(m.getAttribute("url")||""):""}});
+  }
+  return list.map(i=>({id:"rss:"+(i.link||i.title),src:"rss",srcName:f.name,title:strip(i.title),text:i.text===strip(i.title)?"":i.text,
+    img:i.img,link:i.link,time:i.time||0}));
+}
+/* ---------- Reddit ---------- */
+async function loadReddit(sub){
+  const j=await jfetch("https://www.reddit.com/r/"+encodeURIComponent(sub)+"/hot.json?limit=20&raw_json=1");
+  return j.data.children.filter(c=>!c.data.stickied).map(({data:d})=>{
+    const pv=d.preview&&d.preview.images&&d.preview.images[0];
+    const img=pv?(pv.resolutions.slice(-2)[0]||pv.source).url:"";
+    return{id:"rd:"+d.id,src:"reddit",srcName:"r/"+d.subreddit,author:"u/"+d.author,title:d.title,text:(d.selftext||"").slice(0,500),img,
+      link:"https://www.reddit.com"+d.permalink,ext:d.is_self?"":d.url,time:d.created_utc*1000,score:d.score,comments:d.num_comments}});
+}
+/* ---------- Bluesky ---------- */
+const BS="https://bsky.social/xrpc/";
+async function bsk(method,path,body){
+  const go=()=>jfetch(BS+path,{method,headers:{"Authorization":"Bearer "+cfg.bsky.accessJwt,...(body?{"Content-Type":"application/json"}:{})},body:body?JSON.stringify(body):undefined});
+  try{return await go()}catch(e){
+    if(e.status===400||e.status===401){
+      const r=await jfetch(BS+"com.atproto.server.refreshSession",{method:"POST",headers:{"Authorization":"Bearer "+cfg.bsky.refreshJwt}});
+      cfg.bsky.accessJwt=r.accessJwt;cfg.bsky.refreshJwt=r.refreshJwt;save();return await go();
+    }throw e}
+}
+function bskPostItem(fi){
+  const p=fi.post,r=p.record||{},a=p.author,rk=p.uri.split("/").pop();
+  let img="";const em=p.embed||{};
+  if(em.images&&em.images[0])img=em.images[0].thumb;else if(em.media&&em.media.images&&em.media.images[0])img=em.media.images[0].thumb;
+  else if(em.external&&em.external.thumb)img=em.external.thumb;else if(em.thumbnail)img=em.thumbnail;
+  return{id:"bs:"+p.uri+(fi.reason?":rp:"+(fi.reason.by||{}).did:""),src:"bsky",srcName:"Bluesky",author:a.displayName||a.handle,handle:"@"+a.handle,avatar:a.avatar,
+    text:r.text||"",img,link:"https://bsky.app/profile/"+a.handle+"/post/"+rk,time:Date.parse(fi.reason?fi.reason.indexedAt:(r.createdAt||p.indexedAt)),
+    note:fi.reason&&fi.reason.by?"🔁 "+(fi.reason.by.displayName||fi.reason.by.handle)+" hat geteilt":(fi.reply&&fi.reply.parent&&fi.reply.parent.author?"↪ Antwort an @"+fi.reply.parent.author.handle:""),
+    ext:em.external?em.external.uri:"",bs:{uri:p.uri,cid:p.cid,root:r.reply?r.reply.root:{uri:p.uri,cid:p.cid},like:p.viewer&&p.viewer.like,repost:p.viewer&&p.viewer.repost},
+    likes:p.likeCount||0,reposts:p.repostCount||0,replies:p.replyCount||0}
+}
+async function loadBsky(){const j=await bsk("GET","app.bsky.feed.getTimeline?limit=50");return j.feed.map(bskPostItem)}
+async function loadBskyNotifs(){
+  const j=await bsk("GET","app.bsky.notification.listNotifications?limit=40");
+  const L={like:["♥","hat deinen Beitrag geliked"],repost:["🔁","hat deinen Beitrag geteilt"],follow:["👤","folgt dir jetzt"],mention:["@","hat dich erwähnt"],reply:["💬","hat geantwortet"],quote:["❝","hat dich zitiert"]};
+  return j.notifications.map(n=>({id:"bsn:"+n.uri+n.reason,src:"bsky",time:Date.parse(n.indexedAt),unread:!n.isRead,icon:(L[n.reason]||["•"])[0],
+    who:n.author.displayName||n.author.handle,avatar:n.author.avatar,what:(L[n.reason]||["",n.reason])[1],
+    text:(n.reason==="reply"||n.reason==="mention"||n.reason==="quote")?(n.record&&n.record.text)||"":"",
+    link:n.reason==="follow"?"https://bsky.app/profile/"+n.author.handle:(n.uri.includes("app.bsky.feed.post")?"https://bsky.app/profile/"+n.author.handle+"/post/"+n.uri.split("/").pop():""),
+    reply:(n.reason==="reply"||n.reason==="mention"||n.reason==="quote")?{uri:n.uri,cid:n.cid,root:(n.record&&n.record.reply)?n.record.reply.root:{uri:n.uri,cid:n.cid},handle:n.author.handle}:null}));
+}
+async function bskCreate(collection,record){return bsk("POST","com.atproto.repo.createRecord",{repo:cfg.bsky.did,collection,record:{$type:collection,createdAt:new Date().toISOString(),...record}})}
+async function bskDelete(collection,uri){return bsk("POST","com.atproto.repo.deleteRecord",{repo:cfg.bsky.did,collection,rkey:uri.split("/").pop()})}
+/* ---------- Mastodon ---------- */
+const mU=p=>cfg.masto.instance.replace(/\/+$/,"")+p;
+const mH=()=>({"Authorization":"Bearer "+cfg.masto.token});
+function mPostItem(s0){
+  const s=s0.reblog||s0,a=s.account,m=(s.media_attachments||[])[0];
+  return{id:"md:"+s0.id,src:"masto",srcName:"Mastodon",author:a.display_name||a.username,handle:"@"+a.acct,avatar:a.avatar_static||a.avatar,
+    text:(s.spoiler_text?"⚠ "+s.spoiler_text+"\n\n":"")+strip(s.content),img:m?(m.preview_url||""):(s.card&&s.card.image)||"",link:s.url||s.uri,
+    time:Date.parse(s0.created_at),note:s0.reblog?"🔁 "+(s0.account.display_name||s0.account.username)+" hat geteilt":"",ext:s.card?s.card.url:"",
+    md:{id:s.id,acct:a.acct,fav:s.favourited,boost:s.reblogged},likes:s.favourites_count||0,reposts:s.reblogs_count||0,replies:s.replies_count||0}
+}
+async function loadMasto(){const j=await jfetch(mU("/api/v1/timelines/home?limit=40"),{headers:mH()});return j.map(mPostItem)}
+async function loadMastoNotifs(){
+  const j=await jfetch(mU("/api/v1/notifications?limit=30"),{headers:mH()});
+  const L={favourite:["♥","hat deinen Beitrag favorisiert"],reblog:["🔁","hat deinen Beitrag geteilt"],follow:["👤","folgt dir jetzt"],mention:["💬","hat dich erwähnt"],poll:["📊","Umfrage beendet"],status:["📝","hat etwas gepostet"],update:["✏️","hat einen Beitrag bearbeitet"]};
+  return j.map(n=>({id:"mdn:"+n.id,src:"masto",time:Date.parse(n.created_at),icon:(L[n.type]||["•"])[0],who:n.account.display_name||n.account.username,avatar:n.account.avatar_static,
+    what:(L[n.type]||["",n.type])[1],text:n.type==="mention"&&n.status?strip(n.status.content):"",link:n.status?n.status.url:n.account.url,
+    reply:n.type==="mention"&&n.status?{mid:n.status.id,acct:n.account.acct}:null}));
+}
+async function mAct(id,a){return jfetch(mU("/api/v1/statuses/"+id+"/"+a),{method:"POST",headers:mH()})}
+async function mPost(text,replyId){return jfetch(mU("/api/v1/statuses"),{method:"POST",headers:{...mH(),"Content-Type":"application/json"},body:JSON.stringify({status:text,in_reply_to_id:replyId||undefined})})}
+
+/* ---------- Laden ---------- */
+async function loadAll(){
+  if(loading)return;loading=true;$("#refresh").classList.add("spin");errors=[];
+  const jobs=[];
+  cfg.rss.filter(f=>f.on).forEach(f=>jobs.push(["rss",f.name,()=>loadRSS(f)]));
+  cfg.reddit.forEach(s=>jobs.push(["reddit","r/"+s,()=>loadReddit(s)]));
+  if(cfg.bsky)jobs.push(["bsky","Bluesky",loadBsky]);
+  if(cfg.masto)jobs.push(["masto","Mastodon",loadMasto]);
+  const res=await Promise.allSettled(jobs.map(j=>j[2]()));
+  const all=[];res.forEach((r,i)=>{if(r.status==="fulfilled")all.push(...r.value);else errors.push(jobs[i][1]+": "+(r.reason&&r.reason.message||"Fehler"))});
+  const seen=new Set();items=all.filter(i=>!seen.has(i.id)&&seen.add(i.id)).sort((a,b)=>(b.time||0)-(a.time||0));
+  const nj=[];if(cfg.bsky)nj.push(loadBskyNotifs());if(cfg.masto)nj.push(loadMastoNotifs());
+  const nr=await Promise.allSettled(nj);notifs=[];nr.forEach(r=>{if(r.status==="fulfilled")notifs.push(...r.value)});
+  notifs.sort((a,b)=>b.time-a.time);
+  const un=notifs.filter(n=>n.unread).length;$("#ndot").hidden=!un;$("#ndot").textContent=un>99?"99+":un;
+  lastLoad=Date.now();loading=false;$("#refresh").classList.remove("spin");render();
+}
+
+/* ---------- Darstellung ---------- */
+function setTitle(t){$("#title").textContent=t}
+function chips(){
+  if(view!=="feed"){$("#chips").innerHTML="";return}
+  const names=["all","unread",...new Set(items.map(i=>i.src==="rss"||i.src==="reddit"?i.srcName:SRC[i.src].n))];
+  $("#chips").innerHTML=names.map(n=>`<button class="chip ${filter===n?"on":""}" data-f="${esc(n)}">${n==="all"?"Alle":n==="unread"?"Ungelesen":esc(n)}</button>`).join("");
+}
+function card(i,ctx){
+  const s=SRC[i.src],rd=readSet.has(i.id);
+  const badge=`<span class="badge" style="background:${s.c}">${esc(i.src==="rss"||i.src==="reddit"?i.srcName:s.n)}</span>`;
+  let acts="";
+  if(i.src==="bsky"||i.src==="masto"){
+    const liked=i.src==="bsky"?!!i.bs.like:i.md.fav,bo=i.src==="bsky"?!!i.bs.repost:i.md.boost;
+    acts=`<button class="act" data-a="reply">💬 ${i.replies||""}</button><button class="act ${bo?"bo":""}" data-a="boost">🔁 ${i.reposts||""}</button>
+      <button class="act ${liked?"on":""}" data-a="like">${liked?"♥":"♡"} ${i.likes||""}</button>`;
+  }else if(i.src==="reddit"){acts=`<span class="act">▲ ${i.score}</span><a class="act" href="${esc(i.link)}" target="_blank" rel="noopener">💬 ${i.comments}</a>`}
+  const isSaved=saved.some(x=>x.id===i.id);
+  acts+=`<span class="sp"></span><button class="act" data-a="save">${isSaved?"🔖":"📑"}</button><button class="act" data-a="share">⤴︎</button><a class="act" data-a="open" href="${esc(i.ext||i.link)}" target="_blank" rel="noopener">↗</a>`;
+  return `<article class="card ${rd&&ctx!=="saved"?"read":""}" data-id="${esc(i.id)}">
+   <div class="top">${i.avatar?`<img class="av" src="${esc(i.avatar)}" loading="lazy" alt="">`:""}<div class="who">${i.author?`<b>${esc(i.author)}</b> ${esc(i.handle||"")}`:""}</div>${badge}<span>${ago(i.time)}</span></div>
+   ${i.note?`<div class="rp">${esc(i.note)}</div>`:""}
+   ${i.title?`<div class="ttl">${esc(i.title)}</div>`:""}
+   ${i.text?`<div class="txt">${esc(i.text)}</div>`:""}
+   ${i.img?`<img class="pic" src="${esc(i.img)}" loading="lazy" alt="" onerror="this.remove()">`:""}
+   <div class="acts">${acts}</div></article>`;
+}
+function renderFeed(){
+  let list=items;
+  if(filter==="unread")list=list.filter(i=>!readSet.has(i.id));
+  else if(filter!=="all")list=list.filter(i=>(i.src==="rss"||i.src==="reddit"?i.srcName:SRC[i.src].n)===filter);
+  const er=errors.length?`<div class="err">⚠ Nicht geladen: ${errors.map(esc).join(" · ")}</div>`:"";
+  if(!list.length)return er+`<div class="empty">${loading?"Lade Neuigkeiten …":items.length?"Alles gelesen 🎉":"Noch keine Quellen. Tippe unten auf <b>Einrichten</b>."}</div>`;
+  return er+list.slice(0,300).map(i=>card(i,"feed")).join("");
+}
+function renderNotif(){
+  if(!cfg.bsky&&!cfg.masto)return`<div class="empty">Verbinde Bluesky oder Mastodon unter <b>Einrichten</b>, um hier Likes, Antworten, Erwähnungen und neue Follower zu sehen und direkt zu antworten.</div>`;
+  if(!notifs.length)return`<div class="empty">${loading?"Lade …":"Keine Mitteilungen."}</div>`;
+  return notifs.map(n=>`<div class="card ntf" data-nid="${esc(n.id)}"><div class="ic">${esc(n.icon)}</div>${n.avatar?`<img class="av" src="${esc(n.avatar)}" alt="">`:""}
+    <div style="flex:1;min-width:0"><div><b>${esc(n.who)}</b> ${esc(n.what)} ${n.unread?'<span class="badge" style="background:var(--red)">neu</span>':""}</div>
+    ${n.text?`<div class="txt">${esc(n.text)}</div>`:""}
+    <div class="top" style="margin-top:4px"><span class="badge" style="background:${SRC[n.src].c}">${SRC[n.src].n}</span><span>${ago(n.time)}</span><span class="sp"></span>
+    ${n.reply?`<button class="act" data-na="reply">💬 Antworten</button>`:""}${n.link?`<a class="act" href="${esc(n.link)}" target="_blank" rel="noopener">↗</a>`:""}</div></div></div>`).join("");
+}
+function renderApps(){
+  const list=APPS.filter(a=>cfg.apps[a.k]);
+  return `<p class="note">Öffnet die installierte App direkt. Fehlt sie, tippe auf «Web».</p><div class="grid">`+
+   list.map(a=>`<div class="tile"><a href="${esc(a.s||a.w)}" ${a.s?"":'target="_blank" rel="noopener"'} style="text-decoration:none;color:inherit;display:flex;flex-direction:column;align-items:center;gap:5px"><i style="background:${a.c}">${esc(a.t)}</i>${esc(a.n)}</a>
+    ${a.w&&a.s?`<a href="${esc(a.w)}" target="_blank" rel="noopener"><small>Web</small></a>`:""}</div>`).join("")+`</div>
+   <p class="note">Welche Apps hier erscheinen, stellst du unter Einrichten ein.</p>`;
+}
+function renderSaved(){
+  if(!saved.length)return`<div class="empty">Tippe bei einem Beitrag auf 📑, um ihn für später zu merken.</div>`;
+  return saved.map(i=>card(i,"saved")).join("");
+}
+function sw(id,on,attr=""){return`<label class="sw"><input type="checkbox" id="${id}" ${on?"checked":""} ${attr}><b></b></label>`}
+function renderSetup(){
+  const first=!cfg.onboarded;
+  return `${first?`<div class="hero"><h2>Willkommen bei News Hub 👋</h2><p>Eine App für deine Nachrichten, Feeds und Mitteilungen. Richte sie in 3 Schritten ein. Alles bleibt nur auf diesem Gerät gespeichert.</p></div>`:""}
+  <h2><span class="step">1</span>Nachrichtenquellen</h2>
+  <div class="sec">${cfg.rss.map((f,i)=>`<div class="row"><div class="l">${esc(f.name)}<small>${esc(f.url)}</small></div><button class="btn del" data-rdel="${i}">✕</button>${sw("rss"+i,f.on,`data-rss="${i}"`)}</div>`).join("")}
+   <h3>Eigenen Feed hinzufügen (RSS/Atom, auch YouTube-Kanäle)</h3>
+   <input type="text" id="rName" placeholder="Name, z. B. Watson"><input type="url" id="rUrl" placeholder="https://…/rss">
+   <button class="btn sec2" id="rAdd">+ Feed hinzufügen</button>
+   <h3>Reddit-Communities</h3>
+   ${cfg.reddit.map((s,i)=>`<div class="row"><div class="l">r/${esc(s)}</div><button class="btn del" data-sdel="${i}">✕</button></div>`).join("")}
+   <input type="text" id="sub" placeholder="z. B. switzerland, zurich, apple"><button class="btn sec2" id="sAdd">+ Community hinzufügen</button>
+  </div>
+  <h2><span class="step">2</span>Konten verbinden (zum Interagieren)</h2>
+  <div class="sec">
+   <h3>🦋 Bluesky</h3>
+   ${cfg.bsky?`<p class="ok">✓ Verbunden als @${esc(cfg.bsky.handle)}</p><button class="btn sec2" id="bOut">Trennen</button>`:
+   `<p class="note">Benutze ein <b>App-Passwort</b> (Bluesky → Einstellungen → Datenschutz und Sicherheit → App-Passwörter), nicht dein Hauptpasswort.</p>
+    <input type="text" id="bH" placeholder="name.bsky.social" autocapitalize="off" autocorrect="off"><input type="password" id="bP" placeholder="App-Passwort xxxx-xxxx-xxxx-xxxx">
+    <button class="btn" id="bIn">Verbinden</button>`}
+   <h3>🐘 Mastodon</h3>
+   ${cfg.masto?`<p class="ok">✓ Verbunden als @${esc(cfg.masto.acct)}</p><button class="btn sec2" id="mOut">Trennen</button>`:
+   `<p class="note">Auf deiner Instanz: Einstellungen → Entwicklung → Neue Anwendung (Rechte <i>read</i> und <i>write</i>), dann das Zugriffstoken hier einfügen.</p>
+    <input type="url" id="mI" placeholder="https://mastodon.social" autocapitalize="off"><input type="password" id="mT" placeholder="Zugriffstoken">
+    <button class="btn" id="mIn">Verbinden</button>`}
+   <p class="note">Instagram, WhatsApp, Facebook, X, TikTok und Gmail erlauben keinen Zugriff durch fremde Apps (keine offene Schnittstelle). Sie erscheinen deshalb im Tab <b>Apps</b> als Schnellstart.</p>
+  </div>
+  <h2>Schnellstart-Apps</h2>
+  <div class="sec">${APPS.map(a=>`<div class="row"><i style="width:30px;height:30px;border-radius:8px;background:${a.c};color:#fff;font:700 12px/30px sans-serif;text-align:center;font-style:normal">${esc(a.t)}</i><div class="l">${esc(a.n)}</div>${sw("ap_"+a.k,cfg.apps[a.k],`data-app="${a.k}"`)}</div>`).join("")}</div>
+  <h2><span class="step">3</span>Als App installieren</h2>
+  <div class="sec">
+   ${navigator.standalone?`<p class="ok">✓ Läuft bereits als App vom Home-Bildschirm.</p>`:`
+   <p><b>Variante A (empfohlen):</b> In Safari unten auf <b>Teilen ⤴︎</b> tippen, dann <b>«Zum Home-Bildschirm»</b>, dann <b>Hinzufügen</b>.</p>`}
+   <p><b>Variante B: Konfigurationsprofil.</b> Installiert News Hub als Vollbild-App per Profil.</p>
+   <button class="btn sec2" id="prof">Profil (.mobileconfig) laden</button>
+   <p class="note">Danach: Einstellungen → «Profil geladen» → Installieren.</p>
+  </div>
+  <h2>Erweitert</h2>
+  <div class="sec">
+   <h3>Abruf der News-Feeds</h3>
+   <select id="px"><option value="rss2json" ${cfg.proxy==="rss2json"?"selected":""}>rss2json.com (Standard, gratis)</option><option value="direct" ${cfg.proxy==="direct"?"selected":""}>Direkt (nur Feeds mit CORS)</option><option value="custom" ${cfg.proxy==="custom"?"selected":""}>Eigener CORS-Proxy</option></select>
+   <input type="url" id="pxu" placeholder="Proxy-Präfix, z. B. https://mein-proxy.example/?url=" value="${esc(cfg.proxyUrl)}">
+   <input type="text" id="rk" placeholder="rss2json API-Key (optional, mehr Abrufe)" value="${esc(cfg.rssKey)}">
+   <button class="btn sec2" id="pxs">Speichern</button>
+   <h3>Daten</h3>
+   <button class="btn sec2" id="clrRead">Gelesen-Status zurücksetzen</button><button class="btn sec2" id="reset" style="color:var(--red)">Alles zurücksetzen</button>
+  </div>
+  ${first?`<button class="btn" id="done" style="width:100%;padding:14px;margin:6px 0 20px">Fertig – zu meinem Feed</button>`:""}`;
+}
+function render(){
+  const T={feed:"Feed",notif:"Mitteilungen",apps:"Apps",saved:"Gemerkt",setup:"Einrichten"};
+  setTitle(T[view]);chips();
+  $("#fab").style.display=(cfg.bsky||cfg.masto)&&(view==="feed"||view==="notif")?"":"none";
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===view));
+  $("#main").innerHTML=view==="feed"?renderFeed():view==="notif"?renderNotif():view==="apps"?renderApps():view==="saved"?renderSaved():renderSetup();
+  if(view==="feed")observeRead();
+}
+/* gelesen beim Vorbeiscrollen */
+let io;
+function observeRead(){
+  if(io)io.disconnect();
+  if(!("IntersectionObserver"in window))return;
+  io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting&&e.boundingClientRect.top<0){markRead(e.target.dataset.id);io.unobserve(e.target)}}),{threshold:0});
+  document.querySelectorAll("#main .card[data-id]").forEach(c=>io.observe(c));
+}
+
+/* ---------- Sheet: Antworten / Verfassen ---------- */
+function openSheet(html){$("#sheetBody").innerHTML=html;$("#sheet").classList.add("show")}
+function closeSheet(){$("#sheet").classList.remove("show")}
+$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+function composer(opts){
+  // opts: {title, prefill, targets:[["bsky",label],...], max, onSend(text, targets)}
+  openSheet(`<div class="hrow"><h2 style="flex:1;margin:0">${esc(opts.title)}</h2><button class="ib" id="cx">✕</button></div>
+   ${opts.quote?`<div class="note" style="border-left:3px solid var(--line);padding-left:8px;max-height:80px;overflow:hidden">${esc(opts.quote)}</div>`:""}
+   <textarea id="ct" placeholder="Was gibt's Neues?">${esc(opts.prefill||"")}</textarea>
+   ${opts.targets.length>1?opts.targets.map(t=>`<label style="margin-right:14px"><input type="checkbox" class="ctg" value="${t[0]}" checked> ${esc(t[1])}</label>`).join(""):""}
+   <div class="cnt" id="cc"></div><button class="btn" id="cs" style="width:100%">Senden</button>`);
+  const ta=$("#ct"),cc=$("#cc");
+  const upd=()=>{const n=[...ta.value].length;cc.textContent=n+" / "+opts.max;cc.style.color=n>opts.max?"var(--red)":""};
+  ta.addEventListener("input",upd);upd();setTimeout(()=>{ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)},50);
+  $("#cx").onclick=closeSheet;
+  $("#cs").onclick=async()=>{
+    const text=ta.value.trim();if(!text)return;
+    const tg=opts.targets.length>1?[...document.querySelectorAll(".ctg:checked")].map(x=>x.value):opts.targets.map(t=>t[0]);
+    if(!tg.length)return toast("Kein Ziel gewählt");
+    $("#cs").disabled=true;$("#cs").textContent="Sende …";
+    try{await opts.onSend(text,tg);closeSheet();toast("Gesendet ✓");setTimeout(loadAll,1500)}
+    catch(e){$("#cs").disabled=false;$("#cs").textContent="Senden";toast("Fehler: "+e.message)}
+  };
+}
+$("#fab").onclick=()=>{
+  const t=[];if(cfg.bsky)t.push(["bsky","Bluesky"]);if(cfg.masto)t.push(["masto","Mastodon"]);
+  composer({title:"Neuer Beitrag",targets:t,max:t.some(x=>x[0]==="bsky")?300:500,onSend:async(text,tg)=>{
+    const p=[];if(tg.includes("bsky"))p.push(bskCreate("app.bsky.feed.post",{text,langs:["de"]}));if(tg.includes("masto"))p.push(mPost(text));
+    const r=await Promise.allSettled(p);const bad=r.filter(x=>x.status==="rejected");if(bad.length)throw bad[0].reason;}});
+};
+function replyTo(i){
+  if(i.src==="bsky")composer({title:"Antwort an "+i.handle,quote:i.text,targets:[["bsky","Bluesky"]],max:300,
+    onSend:t=>bskCreate("app.bsky.feed.post",{text:t,reply:{root:i.bs.root,parent:{uri:i.bs.uri,cid:i.bs.cid}}})});
+  else composer({title:"Antwort an "+i.handle,quote:i.text,prefill:"@"+i.md.acct+" ",targets:[["masto","Mastodon"]],max:500,onSend:t=>mPost(t,i.md.id)});
+}
+
+/* ---------- Ereignisse ---------- */
+const findItem=id=>items.find(x=>x.id===id)||saved.find(x=>x.id===id);
+$("#main").addEventListener("click",async e=>{
+  const card=e.target.closest(".card[data-id]");
+  const a=e.target.closest("[data-a]");
+  if(card&&!a){const t=card.querySelector(".txt");if(t&&!e.target.closest("a"))t.classList.toggle("full");return}
+  if(a&&card){
+    const i=findItem(card.dataset.id);if(!i)return;const act=a.dataset.a;
+    if(act==="open"){markRead(i.id);card.classList.add("read");return}
+    e.preventDefault();
+    if(act==="save"){const k=saved.findIndex(x=>x.id===i.id);if(k>=0){saved.splice(k,1);toast("Entfernt")}else{saved.unshift(i);toast("Gemerkt 🔖")}LS.set("nh.saved",saved.slice(0,500));render();return}
+    if(act==="share"){const url=i.ext||i.link;try{if(navigator.share)await navigator.share({title:i.title||i.author||"News Hub",url});else{await navigator.clipboard.writeText(url);toast("Link kopiert")}}catch(_){}return}
+    if(act==="reply")return replyTo(i);
+    try{
+      if(i.src==="bsky"){
+        if(act==="like"){if(i.bs.like){await bskDelete("app.bsky.feed.like",i.bs.like);i.bs.like=null;i.likes--}else{const r=await bskCreate("app.bsky.feed.like",{subject:{uri:i.bs.uri,cid:i.bs.cid}});i.bs.like=r.uri;i.likes++}}
+        if(act==="boost"){if(i.bs.repost){await bskDelete("app.bsky.feed.repost",i.bs.repost);i.bs.repost=null;i.reposts--}else{const r=await bskCreate("app.bsky.feed.repost",{subject:{uri:i.bs.uri,cid:i.bs.cid}});i.bs.repost=r.uri;i.reposts++;toast("Geteilt 🔁")}}
+      }else if(i.src==="masto"){
+        if(act==="like"){await mAct(i.md.id,i.md.fav?"unfavourite":"favourite");i.md.fav=!i.md.fav;i.likes+=i.md.fav?1:-1}
+        if(act==="boost"){await mAct(i.md.id,i.md.boost?"unreblog":"reblog");i.md.boost=!i.md.boost;i.reposts+=i.md.boost?1:-1;if(i.md.boost)toast("Geteilt 🔁")}
+      }
+      const y=window.scrollY;render();window.scrollTo(0,y);
+    }catch(err){toast("Fehler: "+err.message)}
+    return;
+  }
+  const na=e.target.closest("[data-na]");
+  if(na){const n=notifs.find(x=>x.id===na.closest("[data-nid]").dataset.nid);if(!n||!n.reply)return;
+    if(n.src==="bsky")composer({title:"Antwort an @"+n.reply.handle,quote:n.text,targets:[["bsky","Bluesky"]],max:300,onSend:t=>bskCreate("app.bsky.feed.post",{text:t,reply:{root:n.reply.root,parent:{uri:n.reply.uri,cid:n.reply.cid}}})});
+    else composer({title:"Antwort an @"+n.reply.acct,quote:n.text,prefill:"@"+n.reply.acct+" ",targets:[["masto","Mastodon"]],max:500,onSend:t=>mPost(t,n.reply.mid)});
+    return}
+  const id=e.target.id;
+  if(id==="rAdd"){const n=$("#rName").value.trim(),u=$("#rUrl").value.trim();if(!/^https?:\/\//.test(u))return toast("Bitte gültige URL");cfg.rss.push({name:n||new URL(u).hostname,url:u,on:true});save();render();loadAll()}
+  if(id==="sAdd"){const s=$("#sub").value.trim().replace(/^\/?r\//,"");if(!s)return;s.split(/[,\s]+/).filter(Boolean).forEach(x=>cfg.reddit.includes(x)||cfg.reddit.push(x));save();render();loadAll()}
+  if(e.target.dataset.rdel){cfg.rss.splice(+e.target.dataset.rdel,1);save();render()}
+  if(e.target.dataset.sdel){cfg.reddit.splice(+e.target.dataset.sdel,1);save();render()}
+  if(id==="bIn"){
+    let h=$("#bH").value.trim().replace(/^@/,"");const p=$("#bP").value.trim();if(!h||!p)return;if(!h.includes("."))h+=".bsky.social";
+    e.target.disabled=true;e.target.textContent="Verbinde …";
+    try{const r=await jfetch(BS+"com.atproto.server.createSession",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({identifier:h,password:p})});
+      cfg.bsky={handle:r.handle,did:r.did,accessJwt:r.accessJwt,refreshJwt:r.refreshJwt};save();toast("Bluesky verbunden ✓");render();loadAll()}
+    catch(err){toast("Login fehlgeschlagen: "+err.message);e.target.disabled=false;e.target.textContent="Verbinden"}
+  }
+  if(id==="bOut"){cfg.bsky=null;save();render();loadAll()}
+  if(id==="mIn"){
+    let inst=$("#mI").value.trim();const tok=$("#mT").value.trim();if(!inst||!tok)return;if(!/^https?:\/\//.test(inst))inst="https://"+inst;
+    e.target.disabled=true;
+    try{const r=await jfetch(inst.replace(/\/+$/,"")+"/api/v1/accounts/verify_credentials",{headers:{"Authorization":"Bearer "+tok}});
+      cfg.masto={instance:inst,token:tok,acct:r.acct+"@"+new URL(inst).hostname};save();toast("Mastodon verbunden ✓");render();loadAll()}
+    catch(err){toast("Verbindung fehlgeschlagen: "+err.message);e.target.disabled=false}
+  }
+  if(id==="mOut"){cfg.masto=null;save();render();loadAll()}
+  if(id==="prof")downloadProfile();
+  if(id==="pxs"){cfg.proxy=$("#px").value;cfg.proxyUrl=$("#pxu").value.trim();cfg.rssKey=$("#rk").value.trim();save();toast("Gespeichert");loadAll()}
+  if(id==="clrRead"){readSet=new Set();LS.set("nh.read",[]);toast("Zurückgesetzt")}
+  if(id==="reset"){openSheet(`<h2>Alles zurücksetzen?</h2><p class="note">Quellen, Konten und gemerkte Beiträge werden auf diesem Gerät gelöscht.</p><button class="btn" style="background:var(--red)" id="rsY">Ja, zurücksetzen</button><button class="btn sec2" id="rsN">Abbrechen</button>`);
+    $("#rsY").onclick=()=>{try{localStorage.clear()}catch(_){}location.reload()};$("#rsN").onclick=closeSheet}
+  if(id==="done"){cfg.onboarded=true;save();view="feed";render();window.scrollTo(0,0)}
+});
+$("#main").addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset.rss!==undefined){cfg.rss[+t.dataset.rss].on=t.checked;save();loadAll()}
+  if(t.dataset.app){cfg.apps[t.dataset.app]=t.checked;save()}
+});
+$("#chips").addEventListener("click",e=>{const c=e.target.closest(".chip");if(!c)return;filter=c.dataset.f;render();window.scrollTo(0,0)});
+$("#nav").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(view===b.dataset.v){window.scrollTo({top:0,behavior:"smooth"});return}
+  view=b.dataset.v;render();window.scrollTo(0,0);
+  if(view==="notif"&&cfg.bsky&&notifs.some(n=>n.unread&&n.src==="bsky")){bsk("POST","app.bsky.notification.updateSeen",{seenAt:new Date().toISOString()}).then(()=>{notifs.forEach(n=>n.unread=false);$("#ndot").hidden=true}).catch(()=>{})}
+});
+$("#refresh").onclick=loadAll;
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-lastLoad>5*60e3)loadAll()});
+
+/* ---------- Konfigurationsprofil ---------- */
+function uuid(){return(crypto.randomUUID?crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==="x"?r:(r&3|8)).toString(16)})).toUpperCase()}
+function downloadProfile(){
+  const url=location.href.split("#")[0],x=s=>esc(s);
+  const xml=`<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>PayloadContent</key><array><dict>
+<key>FullScreen</key><true/><key>Icon</key><data>${ICON_B64}</data><key>IsRemovable</key><true/>
+<key>Label</key><string>News Hub</string><key>Precomposed</key><true/>
+<key>PayloadDisplayName</key><string>News Hub</string><key>PayloadIdentifier</key><string>ch.newshub.webclip</string>
+<key>PayloadType</key><string>com.apple.webClip.managed</string><key>PayloadUUID</key><string>${uuid()}</string>
+<key>PayloadVersion</key><integer>1</integer><key>URL</key><string>${x(url)}</string>
+</dict></array>
+<key>PayloadDescription</key><string>Installiert die App «News Hub» auf dem Home-Bildschirm.</string>
+<key>PayloadDisplayName</key><string>News Hub</string><key>PayloadIdentifier</key><string>ch.newshub</string>
+<key>PayloadOrganization</key><string>News Hub</string><key>PayloadRemovalDisallowed</key><false/>
+<key>PayloadType</key><string>Configuration</string><key>PayloadUUID</key><string>${uuid()}</string><key>PayloadVersion</key><integer>1</integer>
+</dict></plist>`;
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([xml],{type:"application/x-apple-aspen-config"}));
+  a.download="NewsHub.mobileconfig";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);
+}
+
+/* ---------- Start ---------- */
+if(!cfg.onboarded)view="setup";
+render();loadAll();
+</script>
+</body>
+</html>
